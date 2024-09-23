@@ -4,50 +4,50 @@ from country_list import countries_for_language
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.base_user import BaseUserManager
 # Create your models here.
+
 class UserManager(BaseUserManager):
-  def create_user(self,email,password=None,**extra_fields):
-    if not email:
-      raise ValueError("Email is required")
-    email=self.normalize_email(email)
-    user=self.model(email=email,**extra_fields)
-    user.set_password(password)
-    user.save(using=self.db)
-    return user
-  
-  def create_superuser(self,email,password=None,**extra_fields):
-    extra_fields.setdefault('is_staff',True)
-    extra_fields.setdefault('is_superuser',True)
-    extra_fields.setdefault('is_active',True)
-    
-    return self.create_user(email,password,**extra_fields)
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError("Email is required")
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
 
-
-
-
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+        
+        return self.create_user(email, password, **extra_fields)
 
 class CustomUser(AbstractUser):
-  USER_TYPES=(
-    ("s","seeker"),
-    ("e","employer")
-  )
-  user_id=models.AutoField(primary_key=True)
-  username=models.CharField(max_length=500)
-  password=models.CharField(max_length=128)
-  email=models.EmailField(max_length=254,unique=True)
-  phone_number=models.CharField(max_length=15)
-  profile_picture=models.ImageField()
-  user_type=models.CharField(max_length=1,choices=USER_TYPES)
-  date_joined=models.DateField(null=True)
-  # last_logined=models.DateField(null=True)
+    EMPLOYER = 'employer'
+    EMPLOYEE = 'employee'
+
+    USER_TYPE_CHOICES = [
+        (EMPLOYER, 'Employer'),
+        (EMPLOYEE, 'Employee'),
+    ]
+    
+    user_id = models.AutoField(primary_key=True)
+    username = models.CharField(max_length=500)
+    password = models.CharField(max_length=128)
+    email = models.EmailField(max_length=254, unique=True)  # Ensure unique=True is set here
+    phone_number = models.CharField(max_length=15)
+    profile_picture = models.ImageField(upload_to='profiles/', null=True, blank=True)
+    user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, default=EMPLOYEE)
+    date_joined = models.DateField(auto_now_add=True,editable=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    objects = UserManager()
+
+    def __str__(self):
+        return self.email
   
-  USERNAME_FIELD='email'
-  REQUIRED_FIELDS=[]
-  objects=UserManager()
-  # def save(self, *args, **kwargs):
-  #       if self.pk is None:  # Only hash the password when creating a new user
-  #           self.set_password(self.password)
-  #       super().save(*args, **kwargs)
-        
 class Countries(models.Model):
   countries = dict(countries_for_language('en'))
   country=models.CharField(max_length=2,choices=countries)
@@ -79,9 +79,9 @@ class JobsTable(models.Model):
   title=models.CharField(max_length=200)
   description=models.TextField(max_length=250)
   location=models.ForeignKey(Countries,on_delete=models.CASCADE)
-  salary=models.CharField(max_length=10)
-  employement_type=models.CharField(max_length=5,choices=EMP_TYPES)
-  posted_date=models.DateField()
+  salary=models.BigIntegerField()
+  employment_type=models.CharField(max_length=5,choices=EMP_TYPES)
+  posted_date=models.DateField()  
   application_deadline=models.DateField()
   requirements=models.TextField(max_length=65535)
   

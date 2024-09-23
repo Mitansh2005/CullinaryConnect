@@ -108,6 +108,55 @@
         "documentation": {}
     },
     {
+        "label": "random",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "random",
+        "description": "random",
+        "detail": "random",
+        "documentation": {}
+    },
+    {
+        "label": "BaseCommand",
+        "importPath": "django.core.management.base",
+        "description": "django.core.management.base",
+        "isExtraImport": true,
+        "detail": "django.core.management.base",
+        "documentation": {}
+    },
+    {
+        "label": "Faker",
+        "importPath": "faker",
+        "description": "faker",
+        "isExtraImport": true,
+        "detail": "faker",
+        "documentation": {}
+    },
+    {
+        "label": "Faker",
+        "importPath": "faker",
+        "description": "faker",
+        "isExtraImport": true,
+        "detail": "faker",
+        "documentation": {}
+    },
+    {
+        "label": "Countries",
+        "importPath": "myapp.models",
+        "description": "myapp.models",
+        "isExtraImport": true,
+        "detail": "myapp.models",
+        "documentation": {}
+    },
+    {
+        "label": "countries",
+        "importPath": "django_countries",
+        "description": "django_countries",
+        "isExtraImport": true,
+        "detail": "django_countries",
+        "documentation": {}
+    },
+    {
         "label": "django.db.models.deletion",
         "kind": 6,
         "isExtraImport": true,
@@ -130,6 +179,22 @@
         "description": "django.conf",
         "isExtraImport": true,
         "detail": "django.conf",
+        "documentation": {}
+    },
+    {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
         "documentation": {}
     },
     {
@@ -212,23 +277,6 @@
         "importPath": "pandas",
         "description": "pandas",
         "detail": "pandas",
-        "documentation": {}
-    },
-    {
-        "label": "Faker",
-        "importPath": "faker",
-        "description": "faker",
-        "isExtraImport": true,
-        "detail": "faker",
-        "documentation": {}
-    },
-    {
-        "label": "random",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "random",
-        "description": "random",
-        "detail": "random",
         "documentation": {}
     },
     {
@@ -334,6 +382,15 @@
         "description": "rest_framework",
         "isExtraImport": true,
         "detail": "rest_framework",
+        "documentation": {}
+    },
+    {
+        "label": "pycountry",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "pycountry",
+        "description": "pycountry",
+        "detail": "pycountry",
         "documentation": {}
     },
     {
@@ -677,12 +734,30 @@
         "documentation": {}
     },
     {
+        "label": "Command",
+        "kind": 6,
+        "importPath": "myapp.management.commands.populate_countries",
+        "description": "myapp.management.commands.populate_countries",
+        "peekOfCode": "class Command(BaseCommand):\n    help = 'Populate Countries table with fake data'\n    def handle(self, *args, **kwargs):\n        fake = Faker()\n        # Get a dictionary of ISO country codes mapped to their full names\n        country_choices = dict(countries)\n        country_codes = list(country_choices.keys())\n        for _ in range(100):  # You can modify this number to generate more/less records\n            country_code = random.choice(country_codes)  # Randomly choose a country code\n            state = fake.state()",
+        "detail": "myapp.management.commands.populate_countries",
+        "documentation": {}
+    },
+    {
         "label": "Migration",
         "kind": 6,
         "importPath": "myapp.migrations.0001_initial",
         "description": "myapp.migrations.0001_initial",
         "peekOfCode": "class Migration(migrations.Migration):\n    initial = True\n    dependencies = [\n        ('auth', '0012_alter_user_first_name_max_length'),\n    ]\n    operations = [\n        migrations.CreateModel(\n            name='Countries',\n            fields=[\n                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),",
         "detail": "myapp.migrations.0001_initial",
+        "documentation": {}
+    },
+    {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "myapp.migrations.0002_alter_jobstable_salary",
+        "description": "myapp.migrations.0002_alter_jobstable_salary",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('myapp', '0001_initial'),\n    ]\n    operations = [\n        migrations.AlterField(\n            model_name='jobstable',\n            name='salary',\n            field=models.BigIntegerField(),\n        ),",
+        "detail": "myapp.migrations.0002_alter_jobstable_salary",
         "documentation": {}
     },
     {
@@ -798,7 +873,7 @@
         "kind": 2,
         "importPath": "myapp.faker_data",
         "description": "myapp.faker_data",
-        "peekOfCode": "def generate_fake_job_data(num_jobs):\n    jobs = []\n    for _ in range(num_jobs):\n        userid = 5\n        job_id=get_next_user_id()\n        title = fake.job()\n        description = fake.paragraph(nb_sentences=5)\n        location = 1\n        salary = f\"${random.randint(30, 100)}k\"\n        employment_type = random.choice(employment_types)",
+        "peekOfCode": "def generate_fake_job_data(num_jobs):\n    jobs = []\n    for _ in range(num_jobs):\n        userid = 5\n        job_id=get_next_user_id()\n        title = fake.job()\n        description = fake.paragraph(nb_sentences=5)\n        location = 1\n        salary = f\"${random.randint(300000, 4000000)}\"\n        employment_type = random.choice(employment_types)",
         "detail": "myapp.faker_data",
         "documentation": {}
     },
@@ -960,7 +1035,16 @@
         "kind": 6,
         "importPath": "myapp.serializers",
         "description": "myapp.serializers",
-        "peekOfCode": "class ProfileSerializer(serializers.ModelSerializer):\n  class Meta:\n    model=ProfileTable\n    fields=\"__all__\"\nclass JobsTitleSerializer(serializers.ModelSerializer):\n  class Meta:\n    model=JobsTable\n    fields=[\"title\"]\nclass JobsSerializer(serializers.ModelSerializer):\n  class Meta:",
+        "peekOfCode": "class ProfileSerializer(serializers.ModelSerializer):\n  class Meta:\n    model=ProfileTable\n    fields=\"__all__\"  \nclass CountriesSerializer(serializers.ModelSerializer):\n  country_name = serializers.SerializerMethodField()  # Add custom field for country name\n  class Meta:\n      model = Countries\n      fields = ['country','country_name', 'state', 'city', 'postal_code']\n  def get_country_name(self, obj):",
+        "detail": "myapp.serializers",
+        "documentation": {}
+    },
+    {
+        "label": "CountriesSerializer",
+        "kind": 6,
+        "importPath": "myapp.serializers",
+        "description": "myapp.serializers",
+        "peekOfCode": "class CountriesSerializer(serializers.ModelSerializer):\n  country_name = serializers.SerializerMethodField()  # Add custom field for country name\n  class Meta:\n      model = Countries\n      fields = ['country','country_name', 'state', 'city', 'postal_code']\n  def get_country_name(self, obj):\n    try:\n       # Convert country code to country name\n      country_name_id= pycountry.countries.get(alpha_2=obj.country).name\n      return country_name_id",
         "detail": "myapp.serializers",
         "documentation": {}
     },
@@ -969,7 +1053,7 @@
         "kind": 6,
         "importPath": "myapp.serializers",
         "description": "myapp.serializers",
-        "peekOfCode": "class JobsTitleSerializer(serializers.ModelSerializer):\n  class Meta:\n    model=JobsTable\n    fields=[\"title\"]\nclass JobsSerializer(serializers.ModelSerializer):\n  class Meta:\n    model=JobsTable\n    fields=\"__all__\"\nclass ApplicationSerializer(serializers.ModelSerializer):\n  class Meta:",
+        "peekOfCode": "class JobsTitleSerializer(serializers.ModelSerializer):\n  class Meta:\n    model=JobsTable\n    fields=[\"title\"]\nclass JobsSerializer(serializers.ModelSerializer):\n  location=CountriesSerializer()\n  class Meta:\n    model=JobsTable\n    fields=['user_id','job_id', 'title', 'description', 'location', 'salary', 'employement_type', 'posted_date', 'application_deadline', 'requirements']\nclass ApplicationSerializer(serializers.ModelSerializer):",
         "detail": "myapp.serializers",
         "documentation": {}
     },
@@ -978,7 +1062,7 @@
         "kind": 6,
         "importPath": "myapp.serializers",
         "description": "myapp.serializers",
-        "peekOfCode": "class JobsSerializer(serializers.ModelSerializer):\n  class Meta:\n    model=JobsTable\n    fields=\"__all__\"\nclass ApplicationSerializer(serializers.ModelSerializer):\n  class Meta:\n    model=ApplicationTable\n    fields=\"__all__\"\nclass MessageSerializer(serializers.ModelSerializer):\n  sender_profile=ProfileSerializer(read_only=True)",
+        "peekOfCode": "class JobsSerializer(serializers.ModelSerializer):\n  location=CountriesSerializer()\n  class Meta:\n    model=JobsTable\n    fields=['user_id','job_id', 'title', 'description', 'location', 'salary', 'employement_type', 'posted_date', 'application_deadline', 'requirements']\nclass ApplicationSerializer(serializers.ModelSerializer):\n  class Meta:\n    model=ApplicationTable\n    fields=\"__all__\"\nclass MessageSerializer(serializers.ModelSerializer):",
         "detail": "myapp.serializers",
         "documentation": {}
     },

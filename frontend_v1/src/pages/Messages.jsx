@@ -7,7 +7,7 @@ export function MessageTemplate(){
   return (
     <>
     <Navbar/>
-    <section className="flex">
+    <section className="flex h-fit pb-10">
     {/* side panel */}
     <div className="w-3/12 bg-gray-200 h-full ml-7 mt-6 rounded-lg p-5 flex  flex-col">
       <h1 className="text-2xl font-bold">Messages</h1>

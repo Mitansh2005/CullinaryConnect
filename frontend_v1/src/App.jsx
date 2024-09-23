@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 import { AuthProvider } from "./contexts/authContext";
 import { HomeTemplate } from "./pages/Home";
+import { JobCards } from "./components/ui/custom/job-cards";
 import { ProfileTemplate } from "./pages/Profile";
 import { ProfileForm } from "./components/ui/custom/profile-form";
 import { MessageTemplate } from "./pages/Messages";
@@ -16,7 +17,7 @@ import { MessageTemplate } from "./pages/Messages";
 function App() {
 	return (
 		<>
-			<div className="bg-background_color  min-h-screen">
+			<div className="bg-custom_bg font-custom text-xl ">
 				<AuthProvider>
 					<BrowserRouter basename="/app">
 						<Routes>

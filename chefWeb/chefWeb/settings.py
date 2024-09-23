@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import os
 from pathlib import Path
 import django
 import django.utils
@@ -129,7 +129,6 @@ USE_TZ = True
 AUTH_USER_MODEL='myapp.CustomUser'
 STATIC_URL = 'static/'
 MEDIA_URL = 'uploads/'
-import os
 MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
 STATIC_ROOT=os.path.join(BASE_DIR,'static')
 STATIC_DIRS=[

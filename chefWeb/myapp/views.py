@@ -1,17 +1,11 @@
-from django.shortcuts import render
-from .serializers import *
-import json
-from django.http.response import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from .models import *
+from .serializers import JobsSerializer,ApplicationSerializer,MessageSerializer,ProfileSerializer
+from .models import JobsTable,MessageTable,ProfileTable,ApplicationTable
 from django.db.models import Subquery,OuterRef,Q
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-import csv
 from django.contrib.auth.models import User 
-from datetime import datetime
 # Create your views here.
 # This views does CRUD operations on the JobsTable
 class JobsList(generics.ListCreateAPIView):
@@ -22,14 +16,7 @@ class JobsDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset=JobsTable.objects.all()
     serializer_class=JobsSerializer
     permission_classes=[IsAuthenticated]
-   
-def JobsTitle(request):
-    queryset=JobsTable.objects.values('title')
-    print(queryset)
-    serializer=JobsTitleSerializer(queryset,many=True)
-    return serializer.data
-        # json_data=json.dumps(queryset)
-# This view does the CRUD operations on the ApplicationsTable
+   # This view does the CRUD operations on the ApplicationsTable
 class ApplicationsList(generics.ListCreateAPIView):
     queryset=ApplicationTable.objects.all()
     serializer_class=ApplicationSerializer
@@ -111,35 +98,3 @@ class SearchUser(generics.ListAPIView):
         serializer=self.get_serializer(users,many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
     
-    # This code is just to upload test data to the database    
-def jobsfakeData():
-    jobs=[]
-    user_instance=CustomUser.objects.get(user_id=5)
-    country_instance=Countries.objects.get(id=1)
-    print(country_instance)
-    with open('fake_jobs_dataset.csv', mode='r') as file:
-    # Create a CSV reader object
-        csv_reader = csv.reader(file)
-
-    # Iterate over each row in the CSV file
-        for row in csv_reader:
-            print(type(row))
-            job = JobsTable(
-                    user_id=user_instance,
-                    job_id=int(row[1]),
-                    title=row[2],
-                    description=row[3],
-                    location=country_instance,
-                    salary=(row[5]),
-                    employement_type=row[6],
-                    posted_date=datetime.strptime(row[7],'%d-%m-%Y'),
-                    application_deadline=datetime.strptime(row[8],"%d-%m-%Y"),
-                    requirements=row[9]
-                )
-            jobs.append(job)
-            
-    JobsTable.objects.bulk_create(jobs)
-            
-
-# call to the function to upload the data 
-# jobsfakeData()

@@ -5,27 +5,29 @@ from django.utils.html import format_html
 # Register your models here.
 
 class UserAdmin(BaseUserAdmin):
-  model = CustomUser
-  list_display=["user_id","username","email","phone_number","profile_picture","user_type","date_joined"]
-  fieldsets = (
-        (None, {'fields': ('email', 'password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name')}),
-        ('Permissions', {'fields': ('is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions')}),
-        ('Important dates', {'fields': ('last_login', 'date_joined')}),
+    model = CustomUser
+    list_display=["user_id","email","first_name","last_name","phone_number","profile_picture","user_type","is_staff"]
+    fieldsets = (
+    (None, {'fields': ('email', 'password')}),
+    ('Personal info', {'fields': ('first_name', 'last_name', 'phone_number', 'profile_picture', 'user_type')}),
+    ('Permissions', {'fields': ('is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions')}),
+    ('Important dates', {'fields': ('last_login',)}),
     )
-  add_fieldsets = (
-        (None, {
-            'classes': ('wide',),
-            'fields': ('email', 'password1', 'password2', 'is_staff', 'is_active')}
-        ),
+    
+    add_fieldsets = (
+    (None, {
+        'classes': ('wide',),
+        'fields': ('email', 'password1', 'password2', 'user_type','profile_picture','is_staff', 'is_active')}
+    ),
     )
-  search_fields = ('email',)
-  ordering = ('email',)
-  def profile_picture_tag(self, obj):
+    readonly_fields=('date_joined',)
+    search_fields = ('email', 'first_name', 'last_name', 'user_type')
+    ordering = ('email', 'date_joined')
+    def profile_picture_tag(self, obj):
         if obj.profile_picture:
             return format_html('<img src="{}" style="height:50px;width:50px;object-fit:cover;" />', obj.profile_picture.url)
         return "No Image"
-  profile_picture_tag.short_description = 'Profile Picture'
+    profile_picture_tag.short_description = 'Profile Picture'
  
 class ProfileAdmin(admin.ModelAdmin):
   list_display=["profile_id","user_id","first_name","last_name","location","bio","experience_years","speciality"]
@@ -35,7 +37,7 @@ class LocationAdmin(admin.ModelAdmin):
   list_display=["country","state","city","postal_code"]
 
 class JobAdmin(admin.ModelAdmin):
-  list_display=["user_id","job_id","title","description","location","salary","employement_type","posted_date","application_deadline","short_description"]
+  list_display=["user_id","job_id","title","description","location","salary","employment_type","posted_date","application_deadline","short_description"]
   def short_description(self, obj):
         length = 100  # Adjust this value to your desired length
         return (obj.description[:length] + '...') if len(obj.description) > length else obj.description
