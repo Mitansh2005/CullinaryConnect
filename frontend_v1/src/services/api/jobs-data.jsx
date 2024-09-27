@@ -1,51 +1,48 @@
-import axios from "axios";
 import { useState, useEffect } from "react";
 import { useQuery, gql } from "@apollo/client";
-export const JobData = () => {
-	const [jobData, setJobData] = useState([]);
-	const [loading1, setLoading1] = useState(true);
-
-	useEffect(() => {
-		// Fetch data from your API
-		setTimeout(() => {
-			axios
-				.get("http://127.0.0.1:8000/api/jobs") // Replace with your API endpoint
-				.then((response) => {
-					setJobData(response);
-					setLoading1(false);
-				})
-				.catch((error) => {
-					console.error("Error fetching data:", error);
-					setLoading1(false);
-				});
-		},2000);
-	}, []);
-	const result = jobData.data;
-
-	return { result, loading1 };
-};
-const GET_JOB_TITLES = gql`
-	query GetJobTitles {
+const GET_JOB = gql`
+	query GetJob {
 		allJobs {
 			jobId
 			title
+			description
+			location {
+				country
+				state
+				city
+				postalCode
+			}
+			salary
+			employmentType
+			postedDate
+			applicationDeadline
+			requirements
 		}
 	}
 `;
-export const JobTitle = () => {
-	const [jobTitles, setJobTitles] = useState([]);
-	const { loading2, error, data } = useQuery(GET_JOB_TITLES);
+export const Jobs = () => {
+	const [jobs, setJobs] = useState([]);
+	const { loading, error, data } = useQuery(GET_JOB);
 	useEffect(() => {
 		if (data && data.allJobs) {
-			const extractedTitles = data.allJobs.map((item) => ({
-				jobId: item.jobId, // Assuming 'id' is the field for jobId
+			const extractedData = data.allJobs.map((item) => ({
+				job_id: item.jobId, // Assuming 'id' is the field for jobId
 				title: item.title,
+				description: item.description,
+				country: item.location?.country, // Accessing country from the location object
+				state: item.location?.state, // Accessing state from the location object
+				city: item.location?.city, // Accessing city from the location object
+				postal_code: item.location?.postalCode, // Accessing postal code from the location object
+				salary: item.salary,
+				employment_type: item.employmentType,
+				posted_date: item.postedDate,
+				application_deadline: item.applicationDeadline,
+				requirements: item.requirements,
 			}));
-			setJobTitles(extractedTitles);
+			setJobs(extractedData);
 		}
 	}, [data]);
-
-	if (loading2) return { loading2 };
+	if (loading) return { loading };
 	if (error) return { error };
-	return { jobTitles };
+	return { jobs };
 };

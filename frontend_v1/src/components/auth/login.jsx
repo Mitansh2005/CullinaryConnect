@@ -37,9 +37,26 @@ function LoginTemplate() {
 		e.preventDefault();
 		if (!isSigningIn) {
 			setIsSigningIn(true);
-			doSignInWithGoogle().catch((err) => {
-				setIsSigningIn(false);
-			});
+			doSignInWithGoogle()
+				.then((result) => {
+					// Get the Google Access Token
+					const credential = GoogleAuthProvider.credentialFromResult(result);
+					const token = credential.accessToken;
+
+					// Get the signed-in user info
+					const user = result.user;
+
+					// Get additional user info
+					const additionalUserInfo = getAdditionalUserInfo(result);
+
+					console.log("Access Token:", token);
+					console.log("User Info:", user);
+					console.log("Is New User:", additionalUserInfo.isNewUser);
+				})
+				.catch((err) => {
+					setIsSigningIn(false);
+					console.error("The google popup sign in failed.")
+				});
 		}
 	};
 	const togglePasswordVisibility = (e) => {
@@ -50,7 +67,7 @@ function LoginTemplate() {
 		<>
 			<section className="flex items-center justify-center">
 				{/* login container */}
-				<div className="bg-gray-200 flex rounded-2xl shadow-lg max-w-3xl p-12 m-9">
+				<div className="bg-gray-200 flex rounded-2xl shadow-lg max-w-3xl px-16 py-6 m-9">
 					{/* form */}
 					<div className="smw-1/2 px-20">
 						<h2 className="font-black text-5xl text-[#615519]">SIGN IN</h2>
@@ -59,7 +76,7 @@ function LoginTemplate() {
 						</p>
 						<form action="" onSubmit={onSubmit} className="flex flex-col gap-4">
 							<input
-								className="p-2 mt-2 rounded-xl border focus:outline-none focus:border-blue-300 focus:border-4 focus:bg-blue-100 ease-linear duration-150"
+								className="p-2 mt-2 rounded-xl border  focus:outline-none focus:border-blue-300 focus:border-4 focus:bg-blue-100 ease-linear duration-150"
 								type="text"
 								name="email"
 								placeholder="Email"
@@ -150,7 +167,9 @@ function LoginTemplate() {
 									d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"
 								/>
 							</svg>
-							<p className="text-center mt-px">Login with Google</p>
+							<p className="text-center mt-px font-bold text-gray-500">
+								Login with Google
+							</p>
 						</button>
 						<div className="flex mt-10 justify-between ">
 							<p className="text-sm mr-2">Don't Have A Account? Click Here</p>

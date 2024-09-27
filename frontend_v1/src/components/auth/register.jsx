@@ -51,7 +51,7 @@ export function RegisterTemplate() {
 		<>
 			<section className="flex items-center justify-center">
 				{/* login container */}
-				<div className="bg-gray-200 flex rounded-2xl shadow-lg max-w-3xl p-9 mt-9">
+				<div className="bg-gray-200 flex rounded-2xl shadow-lg max-w-3xl px-16 py-5 mt-9">
 					{/* form */}
 					<div className="smw-1/2 px-20">
 						<h2 className="font-black text-5xl text-[#615519]">SIGN UP</h2>
@@ -60,7 +60,7 @@ export function RegisterTemplate() {
 						</p>
 						<form action="" onSubmit={onSubmit} className="flex flex-col gap-4">
 							<input
-								className="p-2 mt-2 rounded-xl border focus:outline-none focus:border-blue-300 focus:border-4 focus:bg-blue-100 ease-linear duration-150"
+								className="p-2 mt-2 rounded-xl border w-full focus:outline-none focus:border-blue-300 focus:border-4 focus:bg-blue-100 ease-linear duration-150"
 								type="text"
 								name="email"
 								placeholder="Email"
@@ -156,7 +156,7 @@ export function RegisterTemplate() {
 							<Button variant="default" onClick={onSubmit}>
 								Sign Up
 							</Button>
-							<button className=" w-fit text-sm italic text-blue-500 hover:underline decoration-sky-500">
+							<button className=" w-fit text-sm italic text-blue-500 hover:text-base hover:text-blue-700 decoration-sky-500 duration-75 ease-linear">
 								Forgot Password
 							</button>
 						</form>
@@ -196,7 +196,7 @@ export function RegisterTemplate() {
 							</svg>
 							<p className="text-center mt-px">Login with Google</p>
 						</button>
-						<div className="flex mt-10 justify-between ">
+						<div className="flex mt-4 justify-between ">
 							<p className="text-sm mr-2"> Have A Account? Click Here</p>
 							<Link to="/login">
 								<Button>SignIn</Button>

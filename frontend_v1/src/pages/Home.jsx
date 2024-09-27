@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/ui/custom/Navbar";
 import UpArrow from "../assets/uparrow.png";
 import { useEffect, useState } from "react";
-import { JobData, JobTitle } from "@/services/api/jobs-data";
+import { Jobs } from "@/services/api/jobs-data";
 import { JobCards } from "@/components/ui/custom/job-cards";
 import { TbError404 } from "react-icons/tb";
 import { MdError } from "react-icons/md";
@@ -20,10 +20,8 @@ export const HomeTemplate = () => {
 	const [locationKeyword, setLocationKeyword] = useState("");
 	//Sets the error message in the search bar
 	const [error, setError] = useState("");
-	//Stores the data of all the jobs in the db
-	const { result, loading1 } = JobData();
-	//Stores the data of all the job titles in the db
-	const { jobTitles, loading2 } = JobTitle();
+	//Stores the data of all the jobs
+	const { jobs, loading } = Jobs();
 	//Stores the locations of the jobs
 	const [locations, setLocations] = useState([]);
 	//Helps to check the state of job search bar if it is in focus or not
@@ -38,11 +36,11 @@ export const HomeTemplate = () => {
 	//Empty string this will hold the data of all the search jobs like there salary, employement type etc
 	const matchedJobs = [];
 	useEffect(() => {
-		if (result) {
-			const locations = [...new Set(result.map((item) => item.location.city))];
+		if (jobs) {
+			const locations = [...new Set(jobs.map((item) => item.city))];
 			setLocations(locations);
 		}
-	}, [result]);
+	}, [jobs]);
 
 	const handleLocationClick = (location) => {
 		const currentLocKeywords = locationKeyword
@@ -80,11 +78,15 @@ export const HomeTemplate = () => {
 	// Handles the submission of search bar of the home page this includes the jobsearch input and location input
 	const handleJobForm = async (e) => {
 		e.preventDefault(); // prevents the webpage from reloading
-		const jobKeywordsArray = jobKeyword.split(",").map((job) => job.trim()); //spilts the jobkeyword by "," and saves it in array
+		const jobKeywordsArray = jobKeyword
+			.split(",")
+			.map((job) => job.trim())
+			.filter((job) => job !== ""); //spilts the jobkeyword by "," and saves it in array
 
 		const locationsKeywordsArray = locationKeyword
 			.split(",")
-			.map((loc) => loc.trim()); //spilts the jobkeyword by "," and saves it in array
+			.map((loc) => loc.trim()) //spilts the jobkeyword by "," and saves it in array
+			.filter((loc) => loc !== ""); // Removes empty strings
 		//This is just to console the response ( Remove in production )
 		console.log("jobtitle:" + jobKeywordsArray);
 		console.log("location: " + locationsKeywordsArray);
@@ -96,7 +98,7 @@ export const HomeTemplate = () => {
 		if (jobKeywordsArray.length > 0 && jobKeywordsArray[0] !== "") {
 			await Promise.all(
 				jobKeywordsArray.map(async (keyword) => {
-					await getJobsByKeyword(keyword, result, jobTitles, false); // false indicates that search keyword is job keyword
+					await getJobsByKeyword(keyword, jobs, false); // false indicates that search keyword is job keyword
 				})
 			);
 		}
@@ -105,25 +107,24 @@ export const HomeTemplate = () => {
 		if (locationsKeywordsArray.length > 0 && locationsKeywordsArray[0] !== "") {
 			await Promise.all(
 				locationsKeywordsArray.map(async (keyword) => {
-					await getJobsByKeyword(keyword, result, jobTitles, true); // true indicates that search keyword is location keyword
+					await getJobsByKeyword(keyword, jobs, true); // true indicates that search keyword is location keyword
 				})
 			);
 		}
 
+		if (locationsKeywordsArray.length === 0 && jobKeywordsArray.length === 0) {
+			setAllJobs(jobs);
+			return;
+		}
+
 		//Update after fetching all the jobs
 		setAllJobs([...matchedJobs]);
-		console.log(matchedJobs);
 	};
 	// Function to find all job IDs by keyword (either title or location)
-	const findAllJobIdsByKeyword = (
-		keyword,
-		jobTitles,
-		isLocationSearch = false
-	) => {
+	const findAllJobIdsByKeyword = (keyword, jobs, isLocationSearch = false) => {
 		// Filter jobs where the title or location contains the keyword
-		const matchedJobs = jobTitles.filter((job) => {
-			console.log(job.location)
-			const searchField = isLocationSearch ? job.location.city : job.title;
+		const matchedJobs = jobs.filter((job) => {
+			const searchField = isLocationSearch ? job.city : job.title;
 			return searchField.toLowerCase().includes(keyword.toLowerCase());
 		});
 
@@ -133,14 +134,13 @@ export const HomeTemplate = () => {
 	// Provide all the details about the jobs with matched job ids
 	const getJobsByKeyword = async (
 		jobKeyword,
-		result,
-		jobTitles,
+		jobs,
 		isLocationSearch = false
 	) => {
 		// Step 1: Find all job IDs matching the keyword
 		const matchedJobIds = findAllJobIdsByKeyword(
 			jobKeyword,
-			jobTitles,
+			jobs,
 			isLocationSearch
 		);
 		if (matchedJobIds.length === 0) {
@@ -151,7 +151,7 @@ export const HomeTemplate = () => {
 		// Step 2: Filter the entire job data to get jobs with the matched IDs
 		matchedJobIds.forEach((value) => {
 			// Check if the job is already in the matchedJobs array to avoid duplicates
-			const matchedJob = result.find((job) => job.job_id === value);
+			const matchedJob = jobs.find((job) => job.job_id === value);
 			if (matchedJob && !matchedJobs.some((job) => job.job_id === value)) {
 				// Only push if the job is not already in matchedJobs
 				matchedJobs.push(matchedJob);
@@ -171,13 +171,13 @@ export const HomeTemplate = () => {
 		renderContent();
 	}, [searchState]);
 	const renderContent = () => {
-		if (!loading1 && searchState === "success") {
+		if (!loading && searchState === "success") {
 			// When the job data is available and we have jobs with searched titles
 			return <JobCards projects={allJobs} className="font-custom_Font" />;
-		} else if (!loading1 && searchState === "") {
+		} else if (!loading && searchState === "") {
 			// When the job data is available but user has not searched for anything
-			return <JobCards projects={result} className="font-custom_Font" />;
-		} else if (!loading1 && searchState === "error") {
+			return <JobCards projects={jobs} className="font-custom_Font" />;
+		} else if (!loading && searchState === "error") {
 			// When the job data is available but user searched for unknown title
 			return (
 				<>
@@ -201,7 +201,7 @@ export const HomeTemplate = () => {
 	};
 	const handleFilter = (filters) => {
 		const { employmentType, location, salaryRange, postedDate } = filters;
-		const filtered = result.filter((job) => {
+		const filtered = jobs.filter((job) => {
 			const matchesJobKeyword = jobKeyword
 				? job.title.toLowerCase().includes(jobKeyword.toLowerCase())
 				: true;
@@ -210,7 +210,7 @@ export const HomeTemplate = () => {
 				? job.employment_type === employmentType
 				: true;
 			// Location check
-			const matchesLocation = location ? job.location.city === location : true;
+			const matchesLocation = location ? job.city === location : true;
 
 			// Salary range check
 			const matchesSalaryRange = salaryRange
@@ -231,6 +231,7 @@ export const HomeTemplate = () => {
 		});
 		// Set filtered jobs
 		setAllJobs(filtered);
+		console.log(filtered);
 		setSearchState("success");
 	};
 
@@ -277,9 +278,9 @@ export const HomeTemplate = () => {
 												jobKeyword ? "h-fit" : "h-60"
 											}`}
 										>
-											{!loading2 ? (
+											{!loading ? (
 												// Dynamically filter jobTitles based on the user's input (jobKeyword)
-												jobTitles
+												jobs
 													.filter((job) => {
 														const keywords = jobKeyword
 															.split(",")
@@ -298,7 +299,7 @@ export const HomeTemplate = () => {
 													})
 													.map((job) => (
 														<li
-															key={job.jobId}
+															key={job.job_id}
 															className="p-2 hover:bg-custom_bg hover:text-white cursor-pointer"
 															onMouseDown={() => handleDropdownClick(job.title)} // Use onMouseDown to avoid onBlur issues
 														>
@@ -347,7 +348,7 @@ export const HomeTemplate = () => {
 												locations.length > 10 ? "h-60" : "h-fit"
 											}`}
 										>
-											{!loading1 ? (
+											{!loading ? (
 												// Dynamically filter locations based on user's input
 												locations
 													.filter((loc) => {
@@ -401,8 +402,8 @@ export const HomeTemplate = () => {
 									Filters
 								</h3>
 							</PopoverTrigger>
-							<PopoverContent>
-								<FiltersDropdown jobData={result} handleFilter={handleFilter} />
+							<PopoverContent className="mt-2">
+								<FiltersDropdown jobs={jobs} handleFilter={handleFilter} />
 							</PopoverContent>
 						</Popover>
 					</div>

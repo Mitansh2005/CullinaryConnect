@@ -17,7 +17,7 @@ import { MessageTemplate } from "./pages/Messages";
 function App() {
 	return (
 		<>
-			<div className="bg-custom_bg font-custom text-xl ">
+			<div className="bg-custom_bg font-custom text-xl min-h-screen">
 				<AuthProvider>
 					<BrowserRouter basename="/app">
 						<Routes>

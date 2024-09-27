@@ -35,7 +35,7 @@ export const HoverEffect = ({ items, className }) => {
 					<Card>
 						<CardTitle>{item.title}</CardTitle>
 						<CardDescription>{item.description}</CardDescription>
-						<CardLocation country_name={item.location.country_name} state={item.location.state} city={item.location.city} postal_code={item.location.postal_code}></CardLocation>
+						<CardLocation country_name={item.country} state={item.state} city={item.city} postal_code={item.postal_code}></CardLocation>
 						<CardSalary>{item.salary}</CardSalary>
 						<CardEmployementType>{item.employment_type}</CardEmployementType>
 						<CardPostedDate>{item.posted_date}</CardPostedDate>

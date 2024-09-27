@@ -1,12 +1,15 @@
 import graphene
 from graphene_django import DjangoObjectType
-from .models import JobsTable
+from .models import JobsTable,Countries
+class LocationType(DjangoObjectType):
+    class Meta:
+        model = Countries
+        fields = ('country', 'state', 'city', 'postal_code')
 
 class JobsTableType(DjangoObjectType):
-    job_id = graphene.Int()  # Explicitly define job_id as a field
     class Meta:
         model = JobsTable
-        fields=("user_id","job_id","title","description","location","salary","employment_type","posted_date","application_deadline","requirements")
+        fields="__all__"
 
 class Query(graphene.ObjectType):
     all_jobs = graphene.List(JobsTableType)

@@ -1,11 +1,11 @@
 import { useState } from "react";
-export default function FiltersDropdown({jobData,handleFilter}) {
+export default function FiltersDropdown({jobs,handleFilter}) {
   const [employmentType, setEmploymentType] = useState('');
   const [location, setLocation] = useState('');
   const [salaryRange, setSalaryRange] = useState('');
   const [postedDate, setPostedDate] = useState('');
-  const uniqueLocations = [...new Set(jobData.map(job => job.location.city))];
-  const employmentTypes = ["full", "part"];
+  const uniqueLocations = [...new Set(jobs.map(job => job.city))];
+  const employmentTypes = ["FULL", "PART"];
   const getFilters = () => {
     const filters = {
       employmentType,
@@ -17,9 +17,9 @@ export default function FiltersDropdown({jobData,handleFilter}) {
   };
 	return (
 		<>
-			<div className="font-custom text-lg">
-        <h1 className="font-bold text-red-600">Filter works with only one title in job field</h1>
-				<div className="mb-4">
+			<div className="font-custom text-lg flex flex-col gap-1">
+        <h1 className="font-bold text-yellow-600 bg-yellow-200 p-1 rounded-lg">Filter works with only one title in job field or empty field</h1>
+				<div>
 					<label
 						htmlFor="employmentType"
 						className="block text-md font-medium text-gray-700"
@@ -42,7 +42,7 @@ export default function FiltersDropdown({jobData,handleFilter}) {
 				</div>
 
 				{/* Location Dropdown */}
-				<div className="mb-4">
+				<div>
 					<label
 						htmlFor="location"
 						className="block text-md font-medium text-gray-700"
@@ -65,7 +65,7 @@ export default function FiltersDropdown({jobData,handleFilter}) {
 				</div>
 
 				{/* Salary Range Input */}
-				<div className="mb-4">
+				<div>
 					<label
 						htmlFor="salaryRange"
 						className="block text-md font-medium text-gray-700"
@@ -83,7 +83,7 @@ export default function FiltersDropdown({jobData,handleFilter}) {
 				</div>
 
 				{/* Posted Date Input */}
-				<div className="mb-4">
+				<div>
 					<label
 						htmlFor="postedDate"
 						className="block text-md font-medium text-gray-700"
