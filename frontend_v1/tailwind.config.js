@@ -19,45 +19,66 @@ module.exports = {
 		extend: {
 			fontFamily: {
 				custom: ["Handjet", "sans-serif"],
+				customFont: ["Changa One", "sans-serif"],
+				customFont2: ["Merriweather", "sans-serif"],
+				customFont3: ["Rokkitt", "sans-serif"],
 			},
 			colors: {
-				custom_bg: "#14213d",
-				custom_color1: "#fca311",
-				background_color: "#380C03",
-				border: "hsl(var(--border))",
-				input: "hsl(var(--input))",
-				ring: "hsl(var(--ring))",
-				background: "hsl(var(--background))",
-				foreground: "hsl(var(--foreground))",
+				// 🎨 Custom Branding Colors
+				brandPrimary: "#FBFEF9", // Bright blue for primary branding (e.g., buttons, highlights)
+				brandAccent: "#7E1946", // Accent color for emphasis (e.g., call-to-action)
+				brandBackground: "#0C6291", 
+
+				// 🧱 Core Theme Tokens using CSS Variables (change via Tailwind theme or :root)
+				border: "hsl(var(--border))", // Border color used for input, cards, etc.
+				input: "hsl(var(--input))", // Background of input fields
+				ring: "hsl(var(--ring))", // Focus ring color (on focus/hover)
+				background: "hsl(var(--background))", // Default background (body/page)
+				foreground: "hsl(var(--foreground))", // Default text color
+
+				// 🟢 Primary Color (used for main actions like buttons, links, etc.)
 				primary: {
-					DEFAULT: "hsl(var(--primary))",
-					foreground: "hsl(var(--primary-foreground))",
+					DEFAULT: "hsl(var(--primary))", // Primary color
+					foreground: "hsl(var(--primary-foreground))", // Text/icon color when used on primary
 				},
+
+				// 🟡 Secondary Color (used for secondary buttons, muted elements)
 				secondary: {
 					DEFAULT: "hsl(var(--secondary))",
 					foreground: "hsl(var(--secondary-foreground))",
 				},
+
+				// 🔴 Destructive Color (used for delete buttons, errors, etc.)
 				destructive: {
 					DEFAULT: "hsl(var(--destructive))",
 					foreground: "hsl(var(--destructive-foreground))",
 				},
+
+				// ⚫ Muted Colors (used for disabled states, placeholders)
 				muted: {
 					DEFAULT: "hsl(var(--muted))",
 					foreground: "hsl(var(--muted-foreground))",
 				},
+
+				// 🟣 Accent Color (e.g., tags, chips, hover effects)
 				accent: {
 					DEFAULT: "hsl(var(--accent))",
 					foreground: "hsl(var(--accent-foreground))",
 				},
+
+				// 📌 Popover/Dropdown Backgrounds
 				popover: {
 					DEFAULT: "hsl(var(--popover))",
 					foreground: "hsl(var(--popover-foreground))",
 				},
+
+				// 🧾 Card Backgrounds (e.g., profile cards, job cards, etc.)
 				card: {
 					DEFAULT: "hsl(var(--card))",
 					foreground: "hsl(var(--card-foreground))",
 				},
 			},
+
 			borderRadius: {
 				lg: "var(--radius)",
 				md: "calc(var(--radius) - 2px)",
@@ -81,7 +102,7 @@ module.exports = {
 			animation: {
 				"accordion-down": "accordion-down 0.2s ease-out",
 				"accordion-up": "accordion-up 0.2s ease-out",
-				swipeIn: 'swipeIn 0.5s ease-in-out forwards',
+				swipeIn: "swipeIn 0.5s ease-in-out forwards",
 			},
 		},
 	},

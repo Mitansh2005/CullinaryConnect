@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
 	doCreateUserWithEmailPassword,
 	doSignInWithGoogle,
@@ -7,153 +7,186 @@ import { Button } from "../ui/button";
 import loginImg from "../../assets/login.png";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../contexts/authContext";
+import {
+	InputComponent,
+	PasswordInputComponent,
+} from "../ui/custom/input-component";
+import { getUid, setUpProfile } from "@/firebase/authUtils";
+import { auth } from "@/firebase/firebase";
 export function RegisterTemplate() {
 	const navigate = useNavigate();
+	const [profileSetUpComplete, setProfileSetUpComplete] = useState(false);
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirmpassword, setConfirmPassword] = useState("");
-	const [checkPassword, setCheckPassword] = useState(false);
 	const [isRegisterIn, setIsRegisterIn] = useState(false);
 	const [errorMessage, setErrorMessage] = useState("");
 	const [passwordVisible, setPasswordVisible] = useState(false);
+	const [userType, setUserType] = useState("jobseeker"); // default is jobseeker
+	const [companyName, setCompanyName] = useState("");
+	const [fssaiNo, setFssaiNo] = useState("");
+	const { userLoggedIn } = useAuth();
+
+	useEffect(() => {
+		if (userLoggedIn && profileSetUpComplete) {
+			navigate("/home");
+		}
+	}, [userLoggedIn, profileSetUpComplete, navigate]);
+
 
 	const onSubmit = async (e) => {
 		e.preventDefault();
-
-		if (!isRegisterIn) {
+		if (!isRegisterIn && checkFunction()) {
 			setIsRegisterIn(true);
-			doCreateUserWithEmailPassword(email, password).finally(
-				navigate("/login")
-			);
+			try {
+				await doCreateUserWithEmailPassword(email, password);
+				const uid = getUid();
+				console.log("data sent: "+ uid + " "+ userType+" "+companyName+" "+fssaiNo);
+				await setUpProfile({
+					uid: uid,
+					username: "New User",
+					user_type: userType,
+					company_name: companyName || "",
+					fssai_license_no: fssaiNo || "",
+				});
+
+				setProfileSetUpComplete(true);
+				console.log("Token verified and user logged in");
+			} catch (err) {
+				// Rollback Firebase user if profile setup fails
+				const currentUser = auth.currentUser;
+				if (currentUser) {
+					await currentUser.delete(); // This removes user from Firebase
+				}
+				console.error(err);
+				setErrorMessage("Something went wrong. Please Try Again");
+			} finally {
+				setIsRegisterIn(false);
+			}
 		}
 	};
-	const onGoogleSignIn = (e) => {
+
+	const onGoogleSignIn = async (e) => {
 		e.preventDefault();
 		if (!isRegisterIn) {
 			setIsRegisterIn(true);
-			doSignInWithGoogle().catch((err) => {
+			try {
+				await doSignInWithGoogle();
+				const uid = getUid();
+				console.log(userType);
+				await setUpProfile({
+					uid: uid,
+					username: "New User",
+					user_type: userType,
+					company_name: companyName || "",
+					fssai_license_no: fssaiNo || "",
+				});
+				console.log("Token verified and user logged in");
+			} catch (err) {
+				setErrorMessage("Something went wrong. Please Try Again");
+			} finally {
 				setIsRegisterIn(false);
-			});
+			}
 		}
 	};
+
 	const togglePasswordVisibility = (e) => {
 		e.preventDefault();
 		setPasswordVisible(!passwordVisible);
 	};
 
-	const checkFunction = () => {
+	const checkFunction = (e) => {
 		if (password == confirmpassword) {
-			setCheckPassword(true);
+			return true;
 		}
-		setCheckPassword(false);
+		setErrorMessage("Both fields should be same");
+		return false;
 	};
 	return (
 		<>
 			<section className="flex items-center justify-center">
 				{/* login container */}
-				<div className="bg-gray-200 flex rounded-2xl shadow-lg max-w-3xl px-16 py-5 mt-9">
+				<div className="bg-gray-200 flex rounded-2xl shadow-lg max-w-3xl px-16 py-5 mt-9 items-center">
 					{/* form */}
-					<div className="smw-1/2 px-20">
+					<div className=" px-20">
 						<h2 className="font-black text-5xl text-[#615519]">SIGN UP</h2>
 						<p className="text-sm mt-4 text-[#9a8a38]">
 							To Become A Member Sign Up Here
 						</p>
-						<form action="" onSubmit={onSubmit} className="flex flex-col gap-4">
-							<input
-								className="p-2 mt-2 rounded-xl border w-full focus:outline-none focus:border-blue-300 focus:border-4 focus:bg-blue-100 ease-linear duration-150"
+						<div className="flex gap-4 my-4">
+							<Button
+								variant={userType === "jobseeker" ? "default" : "outline"}
+								onClick={() => setUserType("jobseeker")}
+							>
+								I am a Jobseeker
+							</Button>
+							<Button
+								variant={userType === "recruiter" ? "default" : "outline"}
+								onClick={() => setUserType("recruiter")}
+							>
+								I am a Recruiter
+							</Button>
+						</div>
+
+						<form
+							action=""
+							onSubmit={onSubmit}
+							className="flex flex-col gap-4 w-full"
+						>
+							{errorMessage && (
+								<div className="bg-red-300 px-3 py-2 w-fit mb-[-8px] ml-3 rounded-md text-red-700 mt-4">
+									{errorMessage}
+								</div>
+							)}
+							<InputComponent
 								type="text"
 								name="email"
 								placeholder="Email"
 								value={email}
-								onChange={(e) => {
-									setEmail(e.target.value);
-								}}
-							></input>
-							<div className="relative">
-								<input
-									className="p-2 mt-2 rounded-xl border w-full focus:outline-none focus:border-blue-300 focus:border-4 focus:bg-blue-100 ease-linear duration-150 "
-									type={passwordVisible ? "text" : "password"}
-									name="password"
-									placeholder="Set Password"
-									value={password}
-									onChange={(e) => {
-										setPassword(e.target.value);
-									}}
-								></input>
+								onChange={(e) => setEmail(e.target.value)}
+								isRequired={true}
+							></InputComponent>
+							<PasswordInputComponent
+								name="password"
+								placeholder="Password"
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+								btnOnClick={togglePasswordVisibility}
+								passwordVisiblity={passwordVisible}
+							></PasswordInputComponent>
+							<PasswordInputComponent
+								name="confirmPassword"
+								placeholder="Confirm Password"
+								value={confirmpassword}
+								onChange={(e) => setConfirmPassword(e.target.value)}
+								btnOnClick={togglePasswordVisibility}
+								passwordVisiblity={passwordVisible}
+							></PasswordInputComponent>
 
-								<button onClick={togglePasswordVisibility}>
-									{passwordVisible ? (
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											width="16"
-											height="16"
-											fill="grey"
-											className="bi bi-eye absolute top-7 
-            right-3 -translate-y-1/2 cursor-pointer"
-											viewBox="0 0 16 16"
-										>
-											<path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z" />
-											<path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0" />
-										</svg>
-									) : (
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											width="16"
-											height="16"
-											fill="currentColor"
-											className="bi bi-eye-slash  absolute top-7 right-3 -translate-y-1/2 cursor-pointer"
-											viewBox="0 0 16 16"
-										>
-											<path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z" />
-											<path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829" />
-											<path d="M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z" />
-										</svg>
-									)}
-								</button>
-							</div>
-							<div className="relative">
-								<input
-									className="p-2 mt-2 rounded-xl border w-full focus:outline-none focus:border-blue-300 focus:border-4 focus:bg-blue-100 ease-linear duration-150 "
-									type={passwordVisible ? "text" : "password"}
-									name="password"
-									placeholder="Confirm Password"
-									value={confirmpassword}
-									onChange={(e) => {
-										setConfirmPassword(e.target.value);
-									}}
-								></input>
+							{/* Recruiter-only fields */}
+							{userType === "recruiter" && (
+								<>
+									<InputComponent
+										type="text"
+										name="company"
+										placeholder="Company Name"
+										value={companyName}
+										onChange={(e) => setCompanyName(e.target.value)}
+										isRequired={true}
+									/>
+									<InputComponent
+										type="text"
+										name="fssai_license_no"
+										placeholder="FSSAI License No"
+										value={fssaiNo}
+										onChange={(e) => setFssaiNo(e.target.value)}
+										isRequired={true}
+									/>
+								</>
+							)}
 
-								<button onClick={togglePasswordVisibility}>
-									{passwordVisible ? (
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											width="16"
-											height="16"
-											fill="grey"
-											className="bi bi-eye absolute top-7 
-            right-3 -translate-y-1/2 cursor-pointer"
-											viewBox="0 0 16 16"
-										>
-											<path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z" />
-											<path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0" />
-										</svg>
-									) : (
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											width="16"
-											height="16"
-											fill="currentColor"
-											className="bi bi-eye-slash  absolute top-7 right-3 -translate-y-1/2 cursor-pointer"
-											viewBox="0 0 16 16"
-										>
-											<path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z" />
-											<path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829" />
-											<path d="M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z" />
-										</svg>
-									)}
-								</button>
-							</div>
-							<Button variant="default" onClick={onSubmit}>
+							<Button variant="default" type="submit" onClick={onSubmit}>
 								Sign Up
 							</Button>
 							<button className=" w-fit text-sm italic text-blue-500 hover:text-base hover:text-blue-700 decoration-sky-500 duration-75 ease-linear">

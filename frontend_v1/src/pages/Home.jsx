@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/ui/custom/Navbar";
 import UpArrow from "../assets/uparrow.png";
 import { useEffect, useState } from "react";
-import { Jobs } from "@/services/api/jobs-data";
+import { useJobs } from "@/services/api/jobs-data";
 import { JobCards } from "@/components/ui/custom/job-cards";
 import { TbError404 } from "react-icons/tb";
 import { MdError } from "react-icons/md";
@@ -19,9 +19,9 @@ export const HomeTemplate = () => {
 	//Updates the state of location keyword user enters in the search bar
 	const [locationKeyword, setLocationKeyword] = useState("");
 	//Sets the error message in the search bar
-	const [error, setError] = useState("");
+	const [errorStatus, setErrorStatus] = useState("");
 	//Stores the data of all the jobs
-	const { jobs, loading } = Jobs();
+	const { jobs, loading, error } = useJobs();
 	//Stores the locations of the jobs
 	const [locations, setLocations] = useState([]);
 	//Helps to check the state of job search bar if it is in focus or not
@@ -119,6 +119,7 @@ export const HomeTemplate = () => {
 
 		//Update after fetching all the jobs
 		setAllJobs([...matchedJobs]);
+		console.log(allJobs)
 	};
 	// Function to find all job IDs by keyword (either title or location)
 	const findAllJobIdsByKeyword = (keyword, jobs, isLocationSearch = false) => {
@@ -173,10 +174,10 @@ export const HomeTemplate = () => {
 	const renderContent = () => {
 		if (!loading && searchState === "success") {
 			// When the job data is available and we have jobs with searched titles
-			return <JobCards projects={allJobs} className="font-custom_Font" />;
+			return <JobCards projects={allJobs} />;
 		} else if (!loading && searchState === "") {
 			// When the job data is available but user has not searched for anything
-			return <JobCards projects={jobs} className="font-custom_Font" />;
+			return <JobCards projects={jobs} />;
 		} else if (!loading && searchState === "error") {
 			// When the job data is available but user searched for unknown title
 			return (
@@ -239,18 +240,16 @@ export const HomeTemplate = () => {
 		<>
 			{/* home */}
 			<section className=" min-h-screen flex flex-col items-center ">
-				<Navbar />
-
 				{/* <!-- Search Bar Container --> */}
 				<div className="flex items-center">
 					<form onSubmit={handleJobForm} className="flex items-center">
-						<div className="flex items-center bg-white shadow-lg rounded-full px-5 py-2 mt-8 w-fit">
+						<div className="flex items-center bg-brandPrimary shadow-lg rounded-full px-5 py-2 mt-8 w-fit z-10">
 							{/* <!-- Job Title Search Input --> */}
 							<div className="flex items-center ">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									viewBox="0 0 512 512"
-									className="w-4 h-4  mr-2"
+									className="w-4 h-4 mr-3"
 								>
 									<path
 										fill="#6b7280"
@@ -259,7 +258,7 @@ export const HomeTemplate = () => {
 								</svg>
 								<input
 									type="text"
-									placeholder="Job title 1, Job title 2, keywords, or company"
+									placeholder="Job title 1, Job title 2, keywords"
 									value={jobKeyword}
 									onChange={(e) => {
 										setJobKeyword(e.target.value);
@@ -268,13 +267,13 @@ export const HomeTemplate = () => {
 									onBlur={() => {
 										setTimeout(() => setIsJobFocused(false), 100); // Small delay to allow the list item click
 									}}
-									className="focus:outline-none w-64 "
+									className="focus:outline-none w-64 text-lg "
 								/>
 
 								{isJobFocused ? (
 									<div className="relative">
 										<ul
-											className={`absolute top-5 left-[-250px] bg-custom_color1 mt-4 z-50  rounded-xl overflow-auto ${
+											className={`absolute top-3 left-[-270px] bg-brandPrimary  mt-4 z-50  rounded-b-xl overflow-hidden ${
 												jobKeyword ? "h-fit" : "h-60"
 											}`}
 										>
@@ -300,7 +299,7 @@ export const HomeTemplate = () => {
 													.map((job) => (
 														<li
 															key={job.job_id}
-															className="p-2 hover:bg-custom_bg hover:text-white cursor-pointer"
+															className="p-2  hover:text-brandAccent cursor-pointer"
 															onMouseDown={() => handleDropdownClick(job.title)} // Use onMouseDown to avoid onBlur issues
 														>
 															{job.title}
@@ -331,7 +330,7 @@ export const HomeTemplate = () => {
 								<input
 									type="text"
 									placeholder='City, state, zip code, or "remote"'
-									className="focus:outline-none w-64"
+									className="focus:outline-none w-64 text-lg"
 									value={locationKeyword}
 									onChange={(e) => {
 										setLocationKeyword(e.target.value);
@@ -344,7 +343,7 @@ export const HomeTemplate = () => {
 								{isLocationFocused ? (
 									<div className="relative">
 										<ul
-											className={`absolute top-5 left-[-250px] bg-custom_color1 mt-4 z-50 rounded-xl overflow-auto ${
+											className={`absolute  top-3 left-[-240px] bg-brandPrimary mt-4 z-50 rounded-b-xl overflow-hidden ${
 												locations.length > 10 ? "h-60" : "h-fit"
 											}`}
 										>
@@ -370,7 +369,7 @@ export const HomeTemplate = () => {
 													.map((loc, index) => (
 														<li
 															key={index}
-															className="p-2 hover:bg-custom_bg hover:text-white cursor-pointer"
+															className="p-2 hover:text-brandAccent cursor-pointer"
 															onMouseDown={() => handleLocationClick(loc)} // Use onMouseDown to avoid onBlur issues
 														>
 															{loc}
@@ -388,7 +387,7 @@ export const HomeTemplate = () => {
 
 							{/* <!-- Search Button --> */}
 							<Button
-								className="rounded-3xl px-6 text-lg"
+								className="rounded-3xl px-6 text-lg bg-brandAccent hover:bg-[#911b50eb] transition-all"
 								onSubmit={handleJobForm}
 							>
 								Find jobs
@@ -398,7 +397,7 @@ export const HomeTemplate = () => {
 					<div className="mt-8">
 						<Popover>
 							<PopoverTrigger>
-								<h3 className="rounded-3xl px-8 py-2 text-lg ml-4 bg-custom_color1 hover:bg-white text-black font-bold">
+								<h3 className="rounded-r-3xl px-8 py-3 text-lg -ml-4 bg-brandAccent hover:bg-[#911b50eb] shadow-inner text-white font-semibold transition-all">
 									Filters
 								</h3>
 							</PopoverTrigger>

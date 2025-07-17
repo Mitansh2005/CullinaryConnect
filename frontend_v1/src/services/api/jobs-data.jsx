@@ -1,48 +1,66 @@
 import { useState, useEffect } from "react";
-import { useQuery, gql } from "@apollo/client";
-const GET_JOB = gql`
-	query GetJob {
-		allJobs {
-			jobId
-			title
-			description
-			location {
-				country
-				state
-				city
-				postalCode
-			}
-			salary
-			employmentType
-			postedDate
-			applicationDeadline
-			requirements
-		}
-	}
-`;
-export const Jobs = () => {
+import axios from "axios";
+import { getFreshIdToken } from "@/firebase/authUtils";
+import { baseUrl } from "@/constants/constants";
+export const useJobs = () => {
 	const [jobs, setJobs] = useState([]);
-	const { loading, error, data } = useQuery(GET_JOB);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(null); // better to use null here
 	useEffect(() => {
-		if (data && data.allJobs) {
-			const extractedData = data.allJobs.map((item) => ({
-				job_id: item.jobId, // Assuming 'id' is the field for jobId
-				title: item.title,
-				description: item.description,
-				country: item.location?.country, // Accessing country from the location object
-				state: item.location?.state, // Accessing state from the location object
-				city: item.location?.city, // Accessing city from the location object
-				postal_code: item.location?.postalCode, // Accessing postal code from the location object
-				salary: item.salary,
-				employment_type: item.employmentType,
-				posted_date: item.postedDate,
-				application_deadline: item.applicationDeadline,
-				requirements: item.requirements,
-			}));
-			setJobs(extractedData);
-		}
-	}, [data]);
-	if (loading) return { loading };
-	if (error) return { error };
-	return { jobs };
+		console.log("Fetching jobs...");
+		const fetchData = async () => {
+			const token = await getFreshIdToken(true);
+			try {
+				console.log("Calling API...");
+				const res = await axios.get(`${baseUrl}/jobs`, {
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				});
+				console.log("working ");
+				setJobs(res.data);
+			} catch (e) {
+				setError("Something went wrong: " + e.message);
+			} finally {
+				setLoading(false);
+			}
+		};
+		fetchData();
+	}, []);
+
+	return { jobs, loading, error };
+};
+
+export const useJobDetails = (jobId) => {
+	const [data, setData] = useState(null);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState("");
+
+	useEffect(() => {
+		if(!jobId) return;
+			const fetchData = async () => {
+				try {
+					const token = await getFreshIdToken(true);
+					if (token) {
+						const res = await axios.get(`${baseUrl}/jobs_detail/${jobId}`, {
+							headers: {
+								Authorization: `Bearer ${token}`,
+							},
+						});
+						setData(res.data);
+					}
+				} catch (e) {
+					console.error("Fetch error:", e);
+					setError("Something went wrong: " + e.message);
+				} finally {
+					setLoading(false);
+				}
+			};
+
+			if (jobId) {
+				fetchData();
+			}
+	}, [jobId]);
+
+	return { data, loading, error };
 };
